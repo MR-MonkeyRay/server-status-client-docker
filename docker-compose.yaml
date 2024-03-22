@@ -1,0 +1,29 @@
+version: '3'
+services:
+  serverstatus-client:
+    container_name: serverstatus-client
+    image: monkeyray/serverstatus-rust-client:latest-rust
+    restart: always
+    environment:
+      - SERVER_HOST=https://host.example.com
+      - SERVER_PORT=443
+      - USERNAME=user1
+      - GID=group1
+      - PASSWORD=changeme
+      - ALIAS=unknown
+      - HOST_TYPE=kvm
+    network_mode: host
+    pid: host
+    volumes:
+      - ./vnstat/:/var/lib/vnstat/
+  vnstat:
+    container_name: vnstat
+    command: ["vnstatd", "-n", "-t", "--user", "vnstat", "--group", "vnstat", "-s", "--config", "/etc/vnstat.conf"]
+    image: vergoh/vnstat:latest
+    restart: always
+    network_mode: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ./vnstat.conf:/etc/vnstat.conf
+      - ./vnstat/:/var/lib/vnstat/
